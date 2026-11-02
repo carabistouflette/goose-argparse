@@ -71,6 +71,7 @@ fn lookup_long(spec: Option[:], name: const u8[:]) -> i64 {
     -1
 }
 fn lookup_short(spec: Option[:], name: u8) -> i64 {
+    if name == 0 { return -1; }
     for i in spec.len { if spec[i].short == name { return i; } }
     -1
 }
