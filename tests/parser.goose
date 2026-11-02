@@ -76,6 +76,9 @@ fn main() {
     expect_error(spec, ["--verb"], argparse::Error.UnknownOption, "unknown option: --verb");
     expect_error(spec, ["--unknown=x"], argparse::Error.UnknownOption, "unknown option: --unknown");
     expect_error(spec, ["-vx"], argparse::Error.UnknownOption, "unknown option: -x");
+    // Zero marks an absent short alias; it must never match an input byte.
+    expect_error([argparse::flag("admin")], ["-\0"], argparse::Error.UnknownOption, "unknown option: -\0");
+    expect_error([argparse::option("output")], ["-\0value"], argparse::Error.UnknownOption, "unknown option: -\0");
     expect_error(spec, ["--output"], argparse::Error.MissingValue, "missing value for --output");
     expect_error(spec, ["-vqo"], argparse::Error.MissingValue, "missing value for --output");
     expect_error(spec, ["--verbose=false"], argparse::Error.UnexpectedValue, "flag does not take a value: --verbose");
