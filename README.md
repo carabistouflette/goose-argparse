@@ -14,6 +14,8 @@ Early development: the API may change before the first release.
 From this checkout:
 
 ```sh
+git clone https://github.com/carabistouflette/goose-argparse.git
+cd goose-argparse
 make setup              # builds the pinned Goose compiler locally
 make check test
 .toolchain/goose/build/goose run examples/hello.goose -- -v --name Goose file.txt
@@ -51,6 +53,8 @@ For a remote dependency, Goose accepts
 Replace `<commit>` with a published commit containing the library. There
 are no releases yet. See the complete [example](examples/hello.goose) for
 an explicit help flag.
+
+CI exercises Linux (Ubuntu 24.04). Other operating systems are not validated.
 
 ## API
 
@@ -111,11 +115,18 @@ finished into owned, fixed-length result arrays; help returns an owned
 text builder and error messages are owned strings. The specification is validated on each parse; lookups are
 linear, appropriate for small CLI option sets.
 
+Input sizes and output allocations have no library-specific cap. Applications
+parsing data beyond OS-provided argv should bound token counts and byte lengths.
+Error messages include input bytes and help includes caller-provided text;
+escape these before displaying untrusted content in a terminal or log.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch, test, and release
 workflow. [GOOSE_REVISION](GOOSE_REVISION) pins the exact upstream compiler
 used by CI; compatibility with other revisions is not yet guaranteed.
+See [RESULTS.md](RESULTS.md) for validation coverage and performance limits,
+and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
 
 Language references used for this implementation:
 [language reference](https://aardappel.github.io/goose/docs/reference.html),
