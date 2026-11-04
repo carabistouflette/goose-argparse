@@ -13,7 +13,8 @@ no runtime dependencies or native build sidecar are required.
    `tests/parser.goose`. Use `tests/cli.py` for actual process integration.
 4. Run `make format`, then `make check test` (or override `GOOSE`).
 5. Review `git diff --check` and `git diff`. Commit related changes together
-   with a short imperative subject, such as `Fix empty attached values`.
+   with an imperative Conventional Commit subject, such as
+   `fix: reject NUL short aliases` or `docs: clarify borrowed results`.
 6. Open a pull request describing behavior and validation. Merge after
    review and passing CI. Keep `main` releasable.
 
