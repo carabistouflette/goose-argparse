@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-05",
+  "kind": "correctness-and-documentation-validation; no timing measurements",
+  "public_source": "7f99d1ed74c705be470d479ec0c95b9aa038b603",
+  "source_sha256": {
+    "argparse.goose": "0d347cf8b2631f4064d42df85658010dc0dd13b226fc30ea3b425316d4d836b9",
+    "examples/hello.goose": "c05063c30c7a7afb3829638ce87913b0d0c2f80dcaefe2b4e36853e087729d2b",
+    "tests/parser.goose": "91441cf65b83a7894da0d8d427c2769516cb7f33e4df2140e3705321be090d50",
+    "tests/cli.py": "4a67399d27f29a0ed4a6e1a8155f49f5a0d029235d18209a39fd290927082a17",
+    "GOOSE_REVISION": "64e14b181dfe96743211738fb0f1b1f7798ea940da2ca50ff122e6f028c24e15",
+    "Makefile": "eae248c0bc9db54bc7254a1ea2b9b5ea65da8179c68470d186ff5ed23e30496f",
+    "scripts/setup-goose.sh": "399d4a87702b8ecf92138f0f78b7422a0225b942f0e24ad9965f09f06f4fbb84",
+    ".github/workflows/ci.yml": "b57588493410e6765d7fbb80357e799cfe32392a4842036dc19f1d3df612ee96"
+  },
+  "compiler_source": "eadca409f68210893f366e60d0c2f0dc29a339be",
+  "compiler_source_status": "",
+  "compiler_version": "goose eadca40 (runtime 3025e5810379)",
+  "compiler_binary_sha256": "7ffde13da95fbbdaa15b27419494fc9b71f2c91c0b4c4d732f51815e928a4b56",
+  "compiler_build": "reused local Release build; GOOSE_BUILTIN_LIBS=none",
+  "runtime": "Linux-7.2.11-arch1-1-x86_64-with-glibc2.44",
+  "os_release": {
+    "NAME": "Arch Linux",
+    "ID": "arch",
+    "PRETTY_NAME": "Arch Linux",
+    "BUILD_ID": "rolling",
+    "ANSI_COLOR": "38;2;23;147;209",
+    "HOME_URL": "https://archlinux.org/",
+    "DOCUMENTATION_URL": "https://wiki.archlinux.org/",
+    "SUPPORT_URL": "https://bbs.archlinux.org/",
+    "BUG_REPORT_URL": "https://gitlab.archlinux.org/groups/archlinux/-/issues",
+    "PRIVACY_POLICY_URL": "https://terms.archlinux.org/docs/privacy-policy/",
+    "LOGO": "archlinux-logo"
+  },
+  "cpu": "Intel(R) Core(TM) Ultra 7 258V",
+  "cc": "cc (GCC) 16.2.1 20260810",
+  "cmake": "cmake version 4.4.5",
+  "python": "3.14.9",
+  "fresh_setup_ci": "https://github.com/carabistouflette/goose-argparse/actions/runs/41800816916",
+  "setup_note": "Full setup not rebuilt locally for this documentation audit. Pinned source, setup shell syntax, and successful public-source CI checked.",
+  "benchmark": "N/A: no quantitative performance claim or comparative benchmark; no timing run required or performed.",
+  "checks": [
+    {
+      "command": [
+        "make",
+        "GOOSE=/tmp/goose-argparse-toolchain/build/goose",
+        "check",
+        "test"
+      ],
+      "cwd": "public-clone",
+      "exit": 0,
+      "stdout": "/tmp/goose-argparse-toolchain/build/goose format --check argparse.goose examples tests\n/tmp/goose-argparse-toolchain/build/goose check tests/parser.goose\n/tmp/goose-argparse-toolchain/build/goose check examples/hello.goose\n/tmp/goose-argparse-toolchain/build/goose run tests/parser.goose\nparser tests passed\nmkdir -p .build\n/tmp/goose-argparse-toolchain/build/goose build tests/parser.goose -o .build/parser\nbuilt .build/parser\n./.build/parser\nparser tests passed\n/tmp/goose-argparse-toolchain/build/goose build examples/hello.goose -o .build/hello\nbuilt .build/hello\npython3 tests/cli.py .build/hello\nCLI tests passed\n",
+      "stderr": "compiling the runtime for gcc 20260810\n"
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "run",
+        "examples/hello.goose",
+        "--",
+        "-v",
+        "--name",
+        "Goose",
+        "file.txt"
+      ],
+      "cwd": "public-clone",
+      "exit": 0,
+      "stdout": "Hello, Goose!\nPositional arguments: 1\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "check",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-argparse/.build/announcement-audit/hello.goose"
+      ],
+      "cwd": "readme-example",
+      "exit": 0,
+      "stdout": "",
+      "stderr": "fetching the package argparse from carabistouflette/goose-argparse@7f99d1ed74c705be470d479ec0c95b9aa038b603\n"
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "run",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-argparse/.build/announcement-audit/hello.goose",
+        "--",
+        "--name",
+        "Goose"
+      ],
+      "cwd": "readme-example",
+      "exit": 0,
+      "stdout": "Hello, Goose!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "run",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-argparse/.build/announcement-audit/hello.goose"
+      ],
+      "cwd": "readme-example",
+      "exit": 0,
+      "stdout": "Hello, world!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "run",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-argparse/.build/announcement-audit/hello.goose",
+        "--",
+        "--unknown"
+      ],
+      "cwd": "readme-example",
+      "exit": 2,
+      "stdout": "",
+      "stderr": "unknown option: --unknown\n"
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "run",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-argparse/.build/announcement-audit/hello.goose",
+        "--",
+        "--name",
+        "local"
+      ],
+      "cwd": "readme-example",
+      "exit": 0,
+      "stdout": "Hello, local!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/tmp/goose-argparse-toolchain/build/goose",
+        "run",
+        "/home/arobin/Work/Projects/goose-libs/libraries/goose-argparse/.build/announcement-audit/local-app/hello.goose",
+        "--",
+        "--name",
+        "local"
+      ],
+      "cwd": "readme-local-example",
+      "import": "../goose-argparse",
+      "exit": 0,
+      "stdout": "Hello, local!\n",
+      "stderr": ""
+    }
+  ],
+  "readme_remote_example_sha256": "15dacba15dfa570100b5741711fd3a2346bcfe03b62ebeb81340a388c25d0e9a",
+  "checked_source_bridge": {
+    "from": "d23af7aff17c6720d17a2e8f6b80bd3bf8f14275",
+    "to": "7f99d1ed74c705be470d479ec0c95b9aa038b603",
+    "paths": [
+      "argparse.goose",
+      "examples/hello.goose",
+      "tests/parser.goose",
+      "tests/cli.py",
+      "GOOSE_REVISION",
+      "Makefile",
+      "scripts/setup-goose.sh",
+      ".github/workflows/ci.yml"
+    ],
+    "result": "No differences; only public prose changed between these revisions. Current documentation branch also leaves these files unchanged."
+  },
+  "prose_inventory": [
+    "README.md",
+    "API.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "RESULTS.md",
+    "docs/validation-2026-11-04.md",
+    "argparse.goose comments",
+    "examples/hello.goose",
+    "tests/parser.goose comments",
+    "scripts/setup-goose.sh"
+  ],
+  "history_note": "The original d23af7a branch is an ancestor of public main 7f99d1e, with no unpublished later changes; relocation preserved original refs and metadata. No tag exists or was changed."
+}

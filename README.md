@@ -1,36 +1,39 @@
 # goose-argparse
 
-A small, dependency-free command-line argument parser for the
+A command-line argument parser for the
 [Goose programming language](https://github.com/aardappel/goose).
-Early development: the API may change before the first release.
+It handles long options, short aliases, grouped flags, values, and positional
+arguments. Applications decide how to display errors and when to exit.
 
-- Long options, short aliases, grouped flags, and attached values.
-- Positional arguments and the `--` end-of-options marker.
-- Predictable errors and generated help.
-- No hidden process access, printing, or exits.
-
-## Quick start
-
-From this checkout:
+## Try it
 
 ```sh
 git clone https://github.com/carabistouflette/goose-argparse.git
 cd goose-argparse
-make setup              # builds the pinned Goose compiler locally
-make check test
-.toolchain/goose/build/goose run examples/hello.goose -- -v --name Goose file.txt
+git checkout 7f99d1ed74c705be470d479ec0c95b9aa038b603
+make setup
+export PATH="$PWD/.toolchain/goose/build:$PATH"
+goose run examples/hello.goose -- -v --name Goose file.txt
 ```
 
-Setup requires Git, CMake 3.27+, a C++20 compiler, and a C compiler. Tests
-also require Make and Python 3. On Linux, Goose's in-process runner needs
-libc development headers. If Goose is already installed, use
-`make GOOSE=/path/to/goose check test` instead of setup.
+Output:
 
-To use the library from a nearby project, declare the package in your
-program's root file:
+```text
+Hello, Goose!
+Positional arguments: 1
+```
+
+Setup needs Bash, Git, Make, CMake 3.27+, a C++20 compiler, and a C compiler. Linux
+also needs libc development headers. `make setup` builds the compiler at
+[GOOSE_REVISION](GOOSE_REVISION); it does not install it system-wide.
+
+## Use it
+
+Save this as `hello.goose` and run `goose run hello.goose -- --name Goose`
+with the pinned compiler on your PATH:
 
 ```goose
-import argparse from "../goose-argparse";
+import argparse from "carabistouflette/goose-argparse@7f99d1ed74c705be470d479ec0c95b9aa038b603";
 import os;
 
 fn main() {
@@ -48,91 +51,33 @@ fn main() {
 }
 ```
 
-For a remote dependency, Goose accepts
-`import argparse from "carabistouflette/goose-argparse@<commit>";`.
-Replace `<commit>` with a published commit containing the library. There
-are no releases yet. See the complete [example](examples/hello.goose) for
-an explicit help flag.
+For a local checkout, use `import argparse from "../goose-argparse";`
+instead; the path is relative to your program's root file. The complete
+[example](examples/hello.goose) also shows an explicit help flag.
 
-CI exercises Linux (Ubuntu 24.04). Other operating systems are not validated.
+See the [API and parsing rules](API.md) for defaults, repeated options,
+empty values, `--`, errors, and borrowed result lifetimes.
 
-## API
+## Status and limits
 
-| Function | Behavior |
-| --- | --- |
-| `flag(name, short = 0, help = "")` | Declare a presence-only flag |
-| `option(name, short = 0, help = "", value_name = "VALUE")` | Declare an option taking one string value |
-| `parse(spec, argv)` | Parse a slice of argument byte slices **without** the executable name |
-| `result.has(name)` | Test whether an option occurred |
-| `result.get(name, fallback = "")` | Last value, or fallback if absent |
-| `help(spec, program, description = "")` | Return help text, including a trailing newline |
-| `validate(spec)` | Return a specification error message, or an empty string |
+The examples pin a published commit. `main` may move; there are no version
+tags or releases yet, and the API may change. CI tests Ubuntu 24.04 with
+Goose `eadca409f68210893f366e60d0c2f0dc29a339be`. Other operating systems
+and compiler revisions are unverified.
 
-`Option` is also directly constructible. Its `value_name` is the help
-placeholder: empty means flag, nonempty means value option. Names must
-start with an ASCII letter, followed by ASCII letters, digits, or hyphens.
-Short aliases are optional ASCII letters. Duplicate names or aliases are
-specification errors. Names and aliases are case-sensitive.
+Values stay strings. Required options, subcommands, environment-variable
+fallbacks, and shell tokenizing are not supported. Input sizes have no
+library-specific cap. Diagnostics include input bytes; escape untrusted
+text before displaying it in terminals or logs.
 
-A `Result` contains `error`, `message`, `entries`, and `positionals`.
-`error` is `argparse::Error.None` on success; failures are `InvalidSpec`,
-`UnknownOption`, `MissingValue`, or `UnexpectedValue`. Always check it
-before using the result: failures may contain entries parsed before the
-error. `entries` preserves every occurrence as `{ name, value }`, using
-the long name even for short aliases. Flags have an empty value; use `has`
-to distinguish absent options from present options with an empty value.
-
-### Parsing rules
-
-- `--output file`, `--output=file`, `-o file`, and `-ofile` supply a value.
-- `-vq` groups flags. In `-vqoFILE`, `o` consumes the remaining `FILE`.
-- A value option consumes the next token verbatim, even `--` or a token
-  beginning with `-`. This allows negative numbers and dash-prefixed paths.
-- `--output=` and `--output ""` are valid empty values.
-- Flags reject `--verbose=true` and `--verbose=`.
-- Repeated options are allowed; `get` returns the last value.
-- Options may appear between positionals. A lone `-` and an empty token
-  are positional. After a standalone `--`, all tokens are positional.
-- Unknown options fail; long names are never abbreviated. Put negative
-  positional numbers after `--`.
-- `-o=value` supplies the literal `=value`; only long options split `=`.
-- Help is explicit: declare `flag("help", 'h', ...)` and call `help` when
-  the application chooses. No options are reserved.
-
-Values remain strings. Use Goose's standard `parse_int` / `parse_flt`
-functions for conversion and validate domain rules in the application.
-Required options, subcommands, environment variables, and shell tokenizing
-are outside this initial scope.
-
-### Goose memory model
-
-The library uses `namespace argparse`, fixed-size option declarations,
-and grow-only arrays for parsed entries, positional slices, and text
-builders. The returned entries **borrow slices from both the specification
-and argv**; keep those alive while using the result. Goose checks their
-lifetimes. Parsing does not copy argument text. Temporary grow-only builders are
-finished into owned, fixed-length result arrays; help returns an owned
-text builder and error messages are owned strings. The specification is validated on each parse; lookups are
-linear, appropriate for small CLI option sets.
-
-Input sizes and output allocations have no library-specific cap. Applications
-parsing data beyond OS-provided argv should bound token counts and byte lengths.
-Error messages include input bytes and help includes caller-provided text;
-escape these before displaying untrusted content in a terminal or log.
+[Validation and performance limits](RESULTS.md) describe what has been
+checked. There is no measured speed or throughput claim.
 
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the branch, test, and release
-workflow. [GOOSE_REVISION](GOOSE_REVISION) pins the exact upstream compiler
-used by CI; compatibility with other revisions is not yet guaranteed.
-See [RESULTS.md](RESULTS.md) for validation coverage and performance limits,
-and [SECURITY.md](SECURITY.md) for private vulnerability reporting.
-
-Language references used for this implementation:
-[language reference](https://aardappel.github.io/goose/docs/reference.html),
-[packages](https://aardappel.github.io/goose/docs/packages.html), and
-[command line](https://aardappel.github.io/goose/docs/command_line.html).
-
-## License
+Run `make check test` after setup; this also needs Make and Python 3.
+With an existing pinned compiler, use `make GOOSE=/path/to/goose check test`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the Git workflow and
+[SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 [Apache-2.0](LICENSE).

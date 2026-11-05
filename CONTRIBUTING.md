@@ -1,37 +1,32 @@
 # Contributing
 
-Keep changes small, understandable, and tested. The library is pure Goose;
-no runtime dependencies or native build sidecar are required.
+1. Start a focused branch from current `main`.
+2. Add regression cases in `tests/parser.goose` for parser changes or
+   `tests/cli.py` for process arguments, output, and exit codes.
+3. Run `make format`, then `make check test`. Use `GOOSE=/path/to/goose`
+   with either command to select an existing pinned compiler.
+4. Review `git diff --check` and the diff. Commit related changes together
+   with a Conventional Commit subject, such as `fix: reject NUL short aliases`.
+5. Open a pull request explaining the behavior and checks. Merge after
+   review and passing CI.
 
-## Workflow
+Keep process I/O and exit decisions in applications. The library uses only
+Goose's standard library; it needs no native build sidecar.
 
-1. Start from an up-to-date `main` and create a focused branch, such as
-   `feat/required-options` or `fix/empty-value`.
-2. Describe the intended behavior before expanding the API. Keep process
-   I/O and exit decisions in applications.
-3. Add regression coverage for parser behavior changes in
-   `tests/parser.goose`. Use `tests/cli.py` for actual process integration.
-4. Run `make format`, then `make check test` (or override `GOOSE`).
-5. Review `git diff --check` and `git diff`. Commit related changes together
-   with an imperative Conventional Commit subject, such as
-   `fix: reject NUL short aliases` or `docs: clarify borrowed results`.
-6. Open a pull request describing behavior and validation. Merge after
-   review and passing CI. Keep `main` releasable.
+## Checks and toolchain updates
 
-`make test` runs the parser through both Goose's in-process runner and a
-native executable, then checks the example's output and exit codes. CI
-runs the same commands on Ubuntu. The compiler cache is local and ignored.
+`make check` checks formatting and types. `make test` runs parser tests
+through Goose's in-process runner and an optimized native executable, then
+checks the example CLI with Python subprocess tests. CI uses the same
+commands on Ubuntu 24.04.
 
-## Toolchain updates
-
-Change `GOOSE_REVISION` to a reviewed full commit from `aardappel/goose`,
-run `make setup`, and run the full checks. Include compatibility changes
-in the same pull request. The setup script builds only the core compiler;
-this library needs none of Goose's optional graphics or audio packages.
+To update Goose, change `GOOSE_REVISION` to a reviewed full upstream commit,
+run `make setup`, and rerun the checks. Keep the README's compiler support
+statement and [validation record](RESULTS.md) consistent with the change.
 
 ## Releases
 
-Once an API is ready, document changes, run the full checks, merge, and tag
-an agreed semantic version, such as `v0.1.0`. Publish the Goose import line
-with that tag; recommend a full commit hash for reproducible builds.
-No registry, generated manifest, or release automation is needed yet.
+There are no version tags yet. Before the first release, agree on the API,
+update the docs, pass the checks, and merge the changes. Publish an agreed
+semantic-version tag and its import line. Recommend full commit hashes
+for reproducible builds; do not move an existing release tag.

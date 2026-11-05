@@ -1,44 +1,69 @@
 # Validation and performance
 
-On 2026-11-04, the parser at `d23af7aff17c6720d17a2e8f6b80bd3bf8f14275`
-passed `make check test` with the pinned Goose compiler
-`eadca409f68210893f366e60d0c2f0dc29a339be` on x86-64 Arch Linux,
-Linux 7.2.11, GCC 16.2.1. The local run reused a compiler binary built from
-that revision; a fresh standalone setup is separately exercised in CI.
+## Current checks
 
-The checks cover formatting, type checking, parser execution through Goose's
-in-process runner and an optimized native executable, and seven subprocess
-cases for the example CLI. Parser coverage includes empty inputs, grouped
-short flags, attached and empty values, repeated options, positionals, `--`,
-invalid specifications, exact error messages, help output, and NUL bytes
-that must not match an absent short alias. The successful output is:
+On 2026-11-05, a fresh public clone at
+`7f99d1ed74c705be470d479ec0c95b9aa038b603` passed:
 
-```text
-parser tests passed
-parser tests passed
-CLI tests passed
-```
+- `make check test`: formatting, type checks, parser tests through Goose's
+  in-process runner and native executable, and seven CLI subprocess cases.
+- The README quickstart example command, with the displayed output.
+  Compiler setup was checked through the existing CI run linked below.
+- The README program using the full-commit remote import: type check,
+  named greeting, default greeting, and unknown-option exit code 2.
+- The same program using the documented relative local import.
 
-Reproduce from a standalone clone:
+The local checks reused a Release build of Goose
+`eadca409f68210893f366e60d0c2f0dc29a339be`, with no optional built-in
+packages, on an Intel Core Ultra 7 258V, x86-64 Arch Linux,
+Linux 7.2.11-arch1-1, GCC 16.2.1, and Python 3.14.9.
+The compiler source was clean. This audit did not rebuild the compiler.
+The unchanged setup script and full checks also passed in
+[CI for the public source](https://github.com/carabistouflette/goose-argparse/actions/runs/41800816916).
+
+[Commands, outputs, and source/compiler hashes](docs/validation-2026-11-05.json)
+are recorded separately. The parser, example, tests, compiler pin, Makefile,
+setup script, and CI workflow are byte-identical between the previously
+checked `d23af7a`, public `7f99d1e`, and this documentation update.
+The [2026-11-04 validation record](docs/validation-2026-11-04.md) is historical.
+
+To reproduce, use the README's pinned checkout and setup, then:
 
 ```sh
-make setup
 make check test
+goose run examples/hello.goose -- -v --name Goose file.txt
 ```
 
-Use a fresh clone for source provenance: the current setup script checks out
-the pinned revision but does not reject every local modification in a reused
-`.toolchain/goose` source cache. Treat an existing cache as trusted local input.
+Or use an existing compiler built from `GOOSE_REVISION`:
 
-The repository contains no timing benchmark or measured throughput ranking.
-It does not claim exhaustive fuzz coverage, sanitizer coverage, or validation
-on other platforms. Passing these tests does not prove absence of defects.
+```sh
+make GOOSE=/path/to/goose check test
+/path/to/goose run examples/hello.goose -- -v --name Goose file.txt
+```
 
-Performance follows the deliberately small implementation: validating `S`
-options compares pairs, and each option lookup scans the specification.
-Parsing therefore includes quadratic specification validation and linear
-lookups per option occurrence, with byte-comparison costs depending on name
-length. Results allocate entry/positional arrays but borrow input text.
-`has` and `get` scan the returned entries. This suits small CLI specifications;
-measure representative workloads before using large specifications or
-optimizing the implementation.
+Use a fresh clone when checking the setup process. `make setup` checks out
+the pinned compiler revision but does not reject all local changes in a
+reused `.toolchain/goose` cache; an existing cache is trusted local input.
+
+## Performance
+
+**Benchmark: not applicable.** There are no timing results, speed rankings,
+or quantitative performance claims in the maintained docs. This parser
+has no stated performance target that needs a benchmark for this update.
+No measurements were run; there are no samples or comparisons to report.
+
+The following costs come from reading the implementation, not timing it:
+validating `S` options compares pairs of definitions; each option lookup
+scans the specification. Name comparisons also depend on byte length.
+`has` and `get` scan the parsed entries. Results allocate entry and
+positional lists while borrowing the argument text. Measure your own
+workload before relying on large specifications or argument lists.
+
+## Limits of these checks
+
+Tests cover grouped flags, attached/empty/repeated values, positionals,
+`--`, invalid specifications, exact diagnostics, generated help, and NUL
+bytes that must not match an absent short alias. They do not establish
+exhaustive fuzz coverage or sanitizer coverage. CI validates Ubuntu 24.04;
+other operating systems and compiler revisions remain unverified. There
+are no release tags, and this documentation audit does not create one.
